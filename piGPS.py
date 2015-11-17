@@ -10,7 +10,7 @@ class GPS(object):
         self._logfile = kwargs.get('logfile','')
         print(self._log,self._logfile)
         self.datastream = serial.Serial("/dev/ttyAMA0", 9600, timeout=0.5)
-        self._gpsData = []        
+        self._gpsData = [0,0,0,0,0,0]        
         
         thread = threading.Thread(target=self.run, args=())
         thread.daemon = True                            # Daemonize thread
@@ -26,7 +26,7 @@ class GPS(object):
         
     @property
     def fix(self):
-        if self.gpsData[5] == 0:
+        if int(self._gpsData[5]) == 0:
             return False
         else:
             return True
@@ -54,7 +54,8 @@ class GPS(object):
             data,cs1 = re.split('\*', sentence)
         except ValueError:
             with open("errorLog",'a') as f:
-                f.write(self.time,sentence)
+                print(sentence)
+                #f.write(",".join(str(value) for value in [self.time,sentence]+ "\n"))
             
             return False
     
@@ -110,9 +111,10 @@ class GPS(object):
                 if self.checksum(nmeaSentence):
                     self.gpsData = self.parseGGA(nmeaSentence)
                     print(self.gpsData)
+                    print(self.fix)
                     if self._log and self.fix:
                         self.logdata()
             sleep(0.2)
 
 
-gps = GPS(log=True)
+#gps = GPS(log=True,logfile="log.csv")
