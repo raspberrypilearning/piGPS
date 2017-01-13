@@ -1,16 +1,22 @@
+#!/usr/bin/python3
+
 import threading
 import serial
 from time import sleep,strftime
 import re
+from signal import pause
+import sys
 
 class GPS(object):
 
     def __init__(self, **kwargs):
         self._log = kwargs.get('log',False)
         self._logfile = kwargs.get('logfile','')
-        print(self._log,self._logfile)
-        self.datastream = serial.Serial("/dev/ttyAMA0", 9600, timeout=0.5)
-        self._gpsData = [0,0,0,0,0,0]        
+        self._dev = kwargs.get('dev', '/dev/ttyAMA0')
+        self._baud = kwargs.get('baud', 9600)
+        print(self._log, self._logfile, self._dev, self._baud)
+        self.datastream = serial.Serial(self._dev, self._baud, timeout=0.5)
+        self._gpsData = [0,0,0,0,0,0]
         
         thread = threading.Thread(target=self.run, args=())
         thread.daemon = True                            # Daemonize thread
@@ -116,5 +122,19 @@ class GPS(object):
                         self.logdata()
             sleep(0.2)
 
+if __name__ == "__main__":
+    device = '/dev/ttyAMA0'
+    baud_rate = 9600
 
-#gps = GPS(log=True,logfile="log.csv")
+    if len(sys.argv) > 1:
+        device = sys.argv[1]
+    
+    if len(sys.argv) > 2:
+        try:
+            baud_rate = int(sys.argv[2])
+        except ValueError as e:
+            print(e)
+            baud_rate = 9600
+    
+    gps = GPS(log=True, logfile="log.csv", dev=device, baud=baud_rate)
+    pause()
