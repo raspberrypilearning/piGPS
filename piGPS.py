@@ -6,6 +6,7 @@ from time import sleep,strftime
 import re
 from signal import pause
 import sys
+from math import sin,cos,radians,degrees,log,tan,pi,atan2,asin,sqrt
 
 class GPS(object):
 
