@@ -10,10 +10,18 @@ import sys
 from math import sin,cos,radians,degrees,log,tan,pi,atan2,asin,sqrt
 
 class GPS(object):
+'''
+The GPS object reads NMEA sentence data from a serial connected GPS device. Once created the GPS object stores the current stores the current gps data and makes this data available via property methods.
 
+    :param bool log:
+        If 'True' the GPS object will write a csv logfile of all valid lat/lon data recieved, by default this is 'False'
+        
+    :param str logfile:
+        Specifies the filename of any GPS logfile to be written, if no filename is specified then a file name gpsLog-{utc timestamp}.csv is used.
+'''
     def __init__(self, **kwargs):
         self._log = kwargs.get('log',False)
-        self._logfile = kwargs.get('logfile','')
+        self._logfile = kwargs.get('logfile,'gpsLog-{0}.csv'.format(datetime.utcnow()))
         self._dev = kwargs.get('dev', '/dev/ttyACM0')
         self._baud = kwargs.get('baud', 9600)
         self._debug = kwargs.get('debug', False)
@@ -120,15 +128,13 @@ class GPS(object):
         return gpsList
 
     def logdata(self):
-        if self._logfile == '':
-            self._logfile = 'gpsLog-%s-%s.csv' % (strftime("%d-%m-%Y"),self.time)
-        if self.debug:    
-            print(self._logfile)
         with open(self._logfile,'a') as f:
             f.write(",".join(str(value) for value in self.gpsData)+ "\n")
             
                                             
     def run(self):
+        with open(self._logfile,'a') as f:
+            f.write("UTC Time, Latitude, Londitude,Altitude,Satelites,GPS Fix?)
         while True:
             # Do something
             byteSentence = self.datastream.readline()
@@ -144,8 +150,8 @@ class GPS(object):
                 if self.debug:
                     print(self.gpsData)
                     print(self.fix)
-                    if self._log and self.fix:
-                        self.logdata()
+                if self._log and self.fix:
+                    self.logdata()
             sleep(0.2)
 
 if __name__ == "__main__":
