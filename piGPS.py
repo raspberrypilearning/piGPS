@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+from datetime import datetime
 import threading
 import serial
 from time import sleep,strftime
@@ -13,15 +14,21 @@ class GPS(object):
     def __init__(self, **kwargs):
         self._log = kwargs.get('log',False)
         self._logfile = kwargs.get('logfile','')
-        self._dev = kwargs.get('dev', '/dev/ttyAMA0')
+        self._dev = kwargs.get('dev', '/dev/ttyACM0')
         self._baud = kwargs.get('baud', 9600)
-        print(self._log, self._logfile, self._dev, self._baud)
+        self._debug = kwargs.get('debug', False)
+        if self._debug:
+            print(self._log, self._logfile, self._dev, self._baud)
         self.datastream = serial.Serial(self._dev, self._baud, timeout=0.5)
         self._gpsData = [0,0,0,0,0,0]
         
         thread = threading.Thread(target=self.run, args=())
         thread.daemon = True                            # Daemonize thread
         thread.start()                                  # Start the execution
+
+    @property
+    def debug(self):
+        return self._debug
 
     @property
     def gpsData(self):
@@ -90,7 +97,10 @@ class GPS(object):
 
     
     def distanceToTarget(self,target):
-        if self.sat > 4:
+        '''
+        Takes a tuple (lon, lat) and calculates straightline distance to target from current location
+        '''
+        if int(self.sat) > 4:
             # convert decimal degrees to radians 
             lat1,lon1,lat2,lon2 = map(radians, [self.lat, self.lon, target[0],target[1]])
 
@@ -106,15 +116,17 @@ class GPS(object):
         
     def parseGGA(self,ggaString):
         rawList = ggaString.split(",")
+        if self.debug()
         print(rawList[1])
         time = rawList[1][0:2]+":"+rawList[1][2:4]+":"+rawList[1][4:6]
-        gpsList = [time,self.nmeaToDec(rawList[2],rawList[3]),self.nmeaToDec(rawList[4],rawList[5]),rawList[9],rawList[7],rawList[6]]
+        gpsList = [datetime.strptime(time,'%H:%M:%S').time() ,self.nmeaToDec(rawList[2],rawList[3]),self.nmeaToDec(rawList[4],rawList[5]),float(rawList[9]),int(rawList[7]),rawList[6]]
         
         return gpsList
 
     def logdata(self):
         if self._logfile == '':
             self._logfile = 'gpsLog-%s-%s.csv' % (strftime("%d-%m-%Y"),self.time)
+        if self.debug:    
             print(self._logfile)
         with open(self._logfile,'a') as f:
             f.write(",".join(str(value) for value in self.gpsData)+ "\n")
@@ -133,6 +145,7 @@ class GPS(object):
                 
                 if self.checksum(nmeaSentence):
                     self.gpsData = self.parseGGA(nmeaSentence)
+                if self.debug:
                     print(self.gpsData)
                     print(self.fix)
                     if self._log and self.fix:
@@ -140,8 +153,6 @@ class GPS(object):
             sleep(0.2)
 
 if __name__ == "__main__":
-    device = '/dev/ttyAMA0'
-    baud_rate = 9600
 
     if len(sys.argv) > 1:
         device = sys.argv[1]
@@ -153,5 +164,6 @@ if __name__ == "__main__":
             print(e)
             baud_rate = 9600
     
-    gps = GPS(log=True, logfile="log.csv", dev=device, baud=baud_rate)
+    gps = GPS()
     pause()
+ 
