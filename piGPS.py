@@ -80,15 +80,15 @@ The GPS object reads NMEA sentence data from a serial connected GPS device. Once
 
     def checksum(self,sentence):
         """
-        
+        Takes a valid NMEA sentence as a parameter, the checksum is then striped and compared to the remainder of the sentence.
+        If the checksum can't be extracted or is invalid then 'False' is returned, if the checksum matches then the function returns 'True'.
         """
         sentence = sentence.rstrip('\n').lstrip('$')
         try: 
             data,cs1 = re.split('\*', sentence)
         except ValueError:
             with open("errorLog",'a') as f:
-                print(sentence)
-                #f.write(",".join(str(value) for value in [self.time,sentence]+ "\n"))
+                f.write(",".join(str(value) for value in [self.time,sentence]+ "\n"))
             
             return False
     
@@ -103,7 +103,7 @@ The GPS object reads NMEA sentence data from a serial connected GPS device. Once
 
     def nmeaToDec(self,dm,dir):
         """
-        
+        Converts a NMEA formatted position to a position in Decimal notation.
         """
         if not dm or dm == '':
             return 0.
@@ -138,7 +138,14 @@ The GPS object reads NMEA sentence data from a serial connected GPS device. Once
         
     def parseGGA(self,ggaString):
         """
+        Takes a NMEA GGA string and splits out the data fields storing them in a List object called 'gpsList', converting the data to appropriate data types before storing.
         
+        gpsList[0] : The UTC time from the GPS device as a 'datetime.time()' object.
+        gpsList[1] : The current decimal Latitude from GPS as a float.
+        gpsList[2] : The current decimal Londitude from GPS as a float.
+        gpsList[3] : The current Altitude in metres from GPS as a float.
+        gpsList[4] : The current number of satelites from which data is being received
+        gpsList[5] : A boolean value indicating whether the GPS receiver currently has a fix, meaning it is receiving data from at least 4 satelites.
         """
         rawList = ggaString.split(",")
         time = rawList[1][0:2]+":"+rawList[1][2:4]+":"+rawList[1][4:6]
@@ -148,7 +155,7 @@ The GPS object reads NMEA sentence data from a serial connected GPS device. Once
 
     def logdata(self):
         """
-        
+        The logdata function adds the latest data (seperated by commas) to the logfile.
         """
         with open(self._logfile,'a') as f:
             f.write(",".join(str(value) for value in self.gpsData)+ "\n")
@@ -156,10 +163,17 @@ The GPS object reads NMEA sentence data from a serial connected GPS device. Once
                                             
     def run(self):
         """
+        The run function runs as a background thread once a GPS object is created, it:
         
+            - Reads NMEA lines from serial input
+            - Checks whether it is a GGA NMEA sentence
+            - Validates GGA sentence using it's checksum
+            - If valid the GGA sentence is parsed and stored in the GPS object's 'gpsData' structure.
+            - If logging is enabled then the latest GPS data is written to the log file.
         """
-        with open(self._logfile,'a') as f:
-            f.write("UTC Time, Latitude, Londitude,Altitude,Satelites,GPS Fix?)
+        if self._log:
+            with open(self._logfile,'a') as f:
+                f.write("UTC Time, Latitude, Londitude,Altitude,Satelites,GPS Fix?)
         while True:
             # Do something
             byteSentence = self.datastream.readline()
