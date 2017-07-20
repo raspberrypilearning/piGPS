@@ -173,7 +173,7 @@ class GPS(object):
         """
         if self._log:
             with open(self._logfile,'a') as f:
-                f.write("UTC Time, Latitude, Londitude,Altitude,Satelites,GPS Fix?)
+                f.write("UTC Time, Latitude, Londitude,Altitude,Satelites,GPS Fix")
         while True:
             # Do something
             byteSentence = self.datastream.readline()
