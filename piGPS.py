@@ -17,8 +17,6 @@ class GPS(object):
         self._dev = kwargs.get('dev', '/dev/ttyACM0')
         self._baud = kwargs.get('baud', 9600)
         self._debug = kwargs.get('debug', False)
-        if self._debug:
-            print(self._log, self._logfile, self._dev, self._baud)
         self.datastream = serial.Serial(self._dev, self._baud, timeout=0.5)
         self._gpsData = [0,0,0,0,0,0]
         
@@ -116,8 +114,6 @@ class GPS(object):
         
     def parseGGA(self,ggaString):
         rawList = ggaString.split(",")
-        if self.debug:
-            print(rawList[1])
         time = rawList[1][0:2]+":"+rawList[1][2:4]+":"+rawList[1][4:6]
         gpsList = [datetime.strptime(time,'%H:%M:%S').time() ,self.nmeaToDec(rawList[2],rawList[3]),self.nmeaToDec(rawList[4],rawList[5]),float(rawList[9]),int(rawList[7]),rawList[6]]
         
