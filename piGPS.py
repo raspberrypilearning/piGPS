@@ -31,7 +31,7 @@ class GPS(object):
 
     def __init__(self, **kwargs):
         self._log = kwargs.get('log',False)
-        self._logfile = kwargs.get('logfile,'gpsLog-{0}.csv'.format(datetime.utcnow()))
+        self._logfile = kwargs.get('logfile','gpsLog-{0}.csv'.format(datetime.utcnow()))
         self._dev = kwargs.get('dev', '/dev/ttyACM0')
         self._baud = kwargs.get('baud', 9600)
         self._debug = kwargs.get('debug', False)
