@@ -10,8 +10,8 @@ import sys
 from math import sin,cos,radians,degrees,log,tan,pi,atan2,asin,sqrt
 
 class GPS(object):
-"""
-The GPS object reads NMEA sentence data from a serial connected GPS device. Once created the GPS object stores the current stores the current gps data and makes this data available via property methods.
+    """
+    The GPS object reads NMEA sentence data from a serial connected GPS device. Once created the GPS object stores the current stores the current gps data and makes this data available via property methods.
 
     :param bool log:
         If 'True' the GPS object will write a csv logfile of all valid lat/lon data recieved, by default this is 'False'
@@ -27,7 +27,7 @@ The GPS object reads NMEA sentence data from a serial connected GPS device. Once
         
     :param bool debug:
         Determines whether debuging information is printed to the console, default is 'False'    
-   """
+    """
 
     def __init__(self, **kwargs):
         self._log = kwargs.get('log',False)
