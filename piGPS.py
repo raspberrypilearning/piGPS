@@ -116,7 +116,7 @@ class GPS(object):
         
     def parseGGA(self,ggaString):
         rawList = ggaString.split(",")
-        if self.debug():
+        if self.debug:
             print(rawList[1])
         time = rawList[1][0:2]+":"+rawList[1][2:4]+":"+rawList[1][4:6]
         gpsList = [datetime.strptime(time,'%H:%M:%S').time() ,self.nmeaToDec(rawList[2],rawList[3]),self.nmeaToDec(rawList[4],rawList[5]),float(rawList[9]),int(rawList[7]),rawList[6]]
