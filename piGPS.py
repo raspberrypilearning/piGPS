@@ -10,7 +10,7 @@ import sys
 from math import sin,cos,radians,degrees,log,tan,pi,atan2,asin,sqrt
 
 class GPS(object):
-'''
+"""
 The GPS object reads NMEA sentence data from a serial connected GPS device. Once created the GPS object stores the current stores the current gps data and makes this data available via property methods.
 
     :param bool log:
@@ -18,7 +18,17 @@ The GPS object reads NMEA sentence data from a serial connected GPS device. Once
         
     :param str logfile:
         Specifies the filename of any GPS logfile to be written, if no filename is specified then a file name gpsLog-{utc timestamp}.csv is used.
-'''
+        
+    :param str dev:
+        Specifies the tty device on which the GPS device is connected, the defualt is '/dev/ttyACM0'
+        
+    :param int baud:
+        Set the baud rate (speed) of the communication with the GPS device, default is '9600'
+        
+    :param bool debug:
+        Determines whether debuging information is printed to the console, default is 'False'    
+"""
+
     def __init__(self, **kwargs):
         self._log = kwargs.get('log',False)
         self._logfile = kwargs.get('logfile,'gpsLog-{0}.csv'.format(datetime.utcnow()))
@@ -69,6 +79,9 @@ The GPS object reads NMEA sentence data from a serial connected GPS device. Once
     
 
     def checksum(self,sentence):
+        """
+        
+        """
         sentence = sentence.rstrip('\n').lstrip('$')
         try: 
             data,cs1 = re.split('\*', sentence)
@@ -89,6 +102,9 @@ The GPS object reads NMEA sentence data from a serial connected GPS device. Once
             return False
 
     def nmeaToDec(self,dm,dir):
+        """
+        
+        """
         if not dm or dm == '':
             return 0.
         match = re.match(r'^(\d+)(\d\d\.\d+)$', dm) 
@@ -103,9 +119,9 @@ The GPS object reads NMEA sentence data from a serial connected GPS device. Once
 
     
     def distanceToTarget(self,target):
-        '''
+        """
         Takes a tuple (lon, lat) and calculates straightline distance to target from current location
-        '''
+        """
         if int(self.sat) > 4:
             # convert decimal degrees to radians 
             lat1,lon1,lat2,lon2 = map(radians, [self.lat, self.lon, target[0],target[1]])
@@ -121,6 +137,9 @@ The GPS object reads NMEA sentence data from a serial connected GPS device. Once
             return None
         
     def parseGGA(self,ggaString):
+        """
+        
+        """
         rawList = ggaString.split(",")
         time = rawList[1][0:2]+":"+rawList[1][2:4]+":"+rawList[1][4:6]
         gpsList = [datetime.strptime(time,'%H:%M:%S').time() ,self.nmeaToDec(rawList[2],rawList[3]),self.nmeaToDec(rawList[4],rawList[5]),float(rawList[9]),int(rawList[7]),rawList[6]]
@@ -128,11 +147,17 @@ The GPS object reads NMEA sentence data from a serial connected GPS device. Once
         return gpsList
 
     def logdata(self):
+        """
+        
+        """
         with open(self._logfile,'a') as f:
             f.write(",".join(str(value) for value in self.gpsData)+ "\n")
             
                                             
     def run(self):
+        """
+        
+        """
         with open(self._logfile,'a') as f:
             f.write("UTC Time, Latitude, Londitude,Altitude,Satelites,GPS Fix?)
         while True:
