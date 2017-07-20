@@ -27,7 +27,7 @@ The GPS object reads NMEA sentence data from a serial connected GPS device. Once
         
     :param bool debug:
         Determines whether debuging information is printed to the console, default is 'False'    
-"""
+   """
 
     def __init__(self, **kwargs):
         self._log = kwargs.get('log',False)
