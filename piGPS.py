@@ -101,6 +101,15 @@ class GPS(object):
         else:
             return False
 
+    def altCheck(self,alt):
+        """
+        Checks for a valid alt and 
+        """
+        if not alt or alt == '':
+            return 0.
+        else :
+            return float(alt)
+ 
     def nmeaToDec(self,dm,dir):
         """
         Converts a NMEA formatted position to a position in Decimal notation.
@@ -149,7 +158,7 @@ class GPS(object):
         """
         rawList = ggaString.split(",")
         time = rawList[1][0:2]+":"+rawList[1][2:4]+":"+rawList[1][4:6]
-        gpsList = [datetime.strptime(time,'%H:%M:%S').time() ,self.nmeaToDec(rawList[2],rawList[3]),self.nmeaToDec(rawList[4],rawList[5]),float(rawList[9]),int(rawList[7]),rawList[6]]
+        gpsList = [datetime.strptime(time,'%H:%M:%S').time() ,self.nmeaToDec(rawList[2],rawList[3]),self.nmeaToDec(rawList[4],rawList[5]),altCheck(rawList[9]),int(rawList[7]),rawList[6]]
         
         return gpsList
 
