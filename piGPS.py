@@ -157,6 +157,8 @@ class GPS(object):
         gpsList[5] : A boolean value indicating whether the GPS receiver currently has a fix, meaning it is receiving data from at least 4 satelites.
         """
         rawList = ggaString.split(",")
+        if self.debug:
+            print("Parsing...\n",rawList)
         time = rawList[1][0:2]+":"+rawList[1][2:4]+":"+rawList[1][4:6]
         gpsList = [datetime.strptime(time,'%H:%M:%S').time() ,self.nmeaToDec(rawList[2],rawList[3]),self.nmeaToDec(rawList[4],rawList[5]),self.altCheck(rawList[9]),int(rawList[7]),rawList[6]]
         
