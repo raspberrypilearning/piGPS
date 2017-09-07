@@ -22,7 +22,7 @@ setup(
     version='0.1.0',
 
     description='GPS library for consuming location data from serial interface',
-    long_description='GPS library for consuming location data from serial interface'
+    long_description='GPS library for consuming location data from serial interface',
 
     # The project's main homepage.
     url='https://github.com/raspberrypilearning/piGPS',
