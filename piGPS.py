@@ -156,11 +156,15 @@ class GPS(object):
         gpsList[4] : The current number of satelites from which data is being received
         gpsList[5] : A boolean value indicating whether the GPS receiver currently has a fix, meaning it is receiving data from at least 4 satelites.
         """
+        gpsList = self._gpsData
+        print(gpsList)
         rawList = ggaString.split(",")
         if self.debug:
             print("Parsing...\n",rawList)
         time = rawList[1][0:2]+":"+rawList[1][2:4]+":"+rawList[1][4:6]
-        gpsList = [datetime.strptime(time,'%H:%M:%S').time() ,self.nmeaToDec(rawList[2],rawList[3]),self.nmeaToDec(rawList[4],rawList[5]),self.altCheck(rawList[9]),int(rawList[7]),rawList[6]]
+        print(time)
+        if time != "::":
+            gpsList = [datetime.strptime(time,'%H:%M:%S').time() ,self.nmeaToDec(rawList[2],rawList[3]),self.nmeaToDec(rawList[4],rawList[5]),self.altCheck(rawList[9]),int(rawList[7]),rawList[6]]
         
         return gpsList
 
@@ -169,7 +173,7 @@ class GPS(object):
         The logdata function adds the latest data (seperated by commas) to the logfile.
         """
         with open(self._logfile,'a') as f:
-            f.write(",".join(str(value) for value in self.gpsData)+ "\n")
+            f.write(",".join(str(value) for value in self._gpsData)+ "\n")
             
                                             
     def run(self):
@@ -196,9 +200,9 @@ class GPS(object):
             if nmeaSentence[3:6] == "GGA":
                 
                 if self.checksum(nmeaSentence):
-                    self.gpsData = self.parseGGA(nmeaSentence)
+                    self._gpsData = self.parseGGA(nmeaSentence)
                 if self.debug:
-                    print(self.gpsData)
+                    print(self._gpsData)
                     print(self.fix)
                 if self._log and self.fix:
                     self.logdata()
@@ -218,4 +222,3 @@ if __name__ == "__main__":
     
     gps = GPS()
     pause()
- 
